@@ -33,7 +33,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if ! git checkout origin/update build.md 2>/dev/null; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "manually triggered!"
+            echo "SHOULD_BUILD=1" >> $GITHUB_OUTPUT
+          elif ! git checkout origin/update build.md 2>/dev/null; then
             echo "first time building!"
             echo "SHOULD_BUILD=1" >> $GITHUB_OUTPUT
           else
