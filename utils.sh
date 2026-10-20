@@ -5,7 +5,7 @@ CWD=$(pwd)
 TEMP_DIR="temp"
 BIN_DIR="bin"
 BUILD_DIR="build"
-DL_SRCS=("direct" "archive" "apkmirror")
+DL_SRCS=("direct" "archive" "apkpure" "apkmirror")
 
 if [ "${GITHUB_TOKEN-}" ]; then GH_HEADER="Authorization: token ${GITHUB_TOKEN}"; else GH_HEADER=; fi
 NEXT_VER_CODE=${NEXT_VER_CODE:-$(date +'%Y%m%d')}
@@ -578,6 +578,53 @@ get_archive_resp() {
 get_archive_vers() { sed 's/^[^-]*-//;s/-\(all\|arm64-v8a\|arm-v7a\)\.\(apk\|apkm\)//g' <<<"$__ARCHIVE_RESP__"; }
 get_archive_pkg_name() { echo "$__ARCHIVE_PKG_NAME__"; }
 
+# -------------------- apkpure (apkeep) --------------------
+get_apkpure_resp() { return 0; }
+get_apkpure_pkg_name() { echo "$pkg_name"; }
+get_apkpure_vers() { echo ""; }
+dl_apkpure() {
+	local _url=$1 version=$2 output=$3 arch=$4 _dpi=$5
+	pr "Downloading with apkeep: ${pkg_name}@${version} (${arch})"
+	if ! command -v apkeep >/dev/null 2>&1; then
+		epr "apkeep is not installed"
+		return 1
+	fi
+	local dl_dir
+	dl_dir=$(mktemp -d -p "$TEMP_DIR")
+	local opts="acknowledge_dangers=true"
+	if [ "$arch" != "all" ] && [ -n "$arch" ]; then
+		opts+=",arch=${arch}"
+	fi
+	if ! apkeep -a "${pkg_name}@${version}" -d apk-pure -o "$opts" "$dl_dir"; then
+		if [ "$arch" != "all" ] && [ -n "$arch" ]; then
+			pr "Retrying apkeep without arch option..."
+			if ! apkeep -a "${pkg_name}@${version}" -d apk-pure -o "acknowledge_dangers=true" "$dl_dir"; then
+				rm -rf "$dl_dir"
+				epr "apkeep failed to download ${pkg_name}@${version}"
+				return 1
+			fi
+		else
+			rm -rf "$dl_dir"
+			epr "apkeep failed to download ${pkg_name}@${version}"
+			return 1
+		fi
+	fi
+	local dl_file
+	dl_file=$(find "$dl_dir" -maxdepth 1 -type f | head -1)
+	if [ -z "$dl_file" ]; then
+		rm -rf "$dl_dir"
+		epr "apkeep output file not found in $dl_dir"
+		return 1
+	fi
+	if [ "${dl_file##*.}" = "xapk" ] || [ "${dl_file##*.}" = "apkm" ]; then
+		merge_splits "$dl_file" "$output"
+	else
+		mv -f "$dl_file" "$output"
+	fi
+	rm -rf "$dl_dir"
+	[ -f "$output" ]
+}
+
 # -------------------- direct --------------------
 dl_direct() {
 	local url=$1 version=${2// /-} output=$3 arch=$4 _dpi=$5
@@ -729,6 +776,28 @@ build_rv() {
 			fi
 			break
 		done
+		if [ ! -f "$stock_apk" ] && command -v apkeep >/dev/null 2>&1; then
+			pr "Trying fallback download with apkeep for '${pkg_name}@${version}'..."
+			local dl_dir
+			dl_dir=$(mktemp -d -p "$TEMP_DIR")
+			local opts="acknowledge_dangers=true"
+			if [ "$arch" != "all" ] && [ -n "$arch" ]; then
+				opts+=",arch=${arch}"
+			fi
+			if apkeep -a "${pkg_name}@${version}" -d apk-pure -o "$opts" "$dl_dir" || \
+			   apkeep -a "${pkg_name}@${version}" -d apk-pure -o "acknowledge_dangers=true" "$dl_dir"; then
+				local dl_file
+				dl_file=$(find "$dl_dir" -maxdepth 1 -type f | head -1)
+				if [ -n "$dl_file" ]; then
+					if [ "${dl_file##*.}" = "xapk" ] || [ "${dl_file##*.}" = "apkm" ]; then
+						merge_splits "$dl_file" "$stock_apk"
+					else
+						mv -f "$dl_file" "$stock_apk"
+					fi
+				fi
+			fi
+			rm -rf "$dl_dir"
+		fi
 		if [ ! -f "$stock_apk" ]; then
 			epr "Stock apk not found ($stock_apk)"
 			return 0
