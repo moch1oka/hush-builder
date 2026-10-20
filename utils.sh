@@ -584,13 +584,26 @@ get_apkpure_pkg_name() { echo "$pkg_name"; }
 get_apkpure_vers() { echo ""; }
 dl_apkpure() {
 	local _url=$1 version=$2 output=$3 arch=$4 _dpi=$5
-	pr "Downloading with apkeep: ${pkg_name}@${version} (${arch})"
-	if ! command -v apkeep >/dev/null 2>&1; then
-		epr "apkeep is not installed"
-		return 1
-	fi
+	local version_code=${args[version_code]-}
+	pr "Downloading with apkpure: ${pkg_name}@${version} (${arch}${version_code:+, vc: $version_code})"
 	local dl_dir
 	dl_dir=$(mktemp -d -p "$TEMP_DIR")
+	if [ -n "$version_code" ]; then
+		pr "Downloading specific versionCode ${version_code} from APKPure CDN..."
+		local dl_xapk="${dl_dir}/${pkg_name}_${version_code}.xapk"
+		if curl -sSL -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36" \
+			"https://d.apkpure.net/b/XAPK/${pkg_name}?versionCode=${version_code}" -o "$dl_xapk" && [ -s "$dl_xapk" ]; then
+			merge_splits "$dl_xapk" "$output"
+			rm -rf "$dl_dir"
+			return 0
+		fi
+		pr "Direct versionCode download failed, falling back to apkeep..."
+	fi
+	if ! command -v apkeep >/dev/null 2>&1; then
+		epr "apkeep is not installed"
+		rm -rf "$dl_dir"
+		return 1
+	fi
 	local opts="acknowledge_dangers=true"
 	if [ "$arch" != "all" ] && [ -n "$arch" ]; then
 		opts+=",arch=${arch}"
@@ -801,6 +814,19 @@ build_rv() {
 		if [ ! -f "$stock_apk" ]; then
 			epr "Stock apk not found ($stock_apk)"
 			return 0
+		fi
+		if [ "$pkg_name" = "com.facebook.katana" ]; then
+			if unzip -l "$stock_apk" "assets/secondary-program-dex-jars/store-0.dex.spo" 2>/dev/null | grep -q "store-0.dex.spo"; then
+				pr "Facebook build has secondary-program-dex-jars/store-0.dex.spo (Android 9 build). Downloading Android 11+ build (build code 475614366)..."
+				local fb_tmp
+				fb_tmp=$(mktemp -d -p "$TEMP_DIR")
+				local fb_xapk="${fb_tmp}/fb.xapk"
+				if curl -sSL -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36" \
+					"https://d.apkpure.net/b/XAPK/com.facebook.katana?versionCode=475614366" -o "$fb_xapk" && [ -s "$fb_xapk" ]; then
+					merge_splits "$fb_xapk" "$stock_apk"
+				fi
+				rm -rf "$fb_tmp"
+			fi
 		fi
 	fi
 
