@@ -19,6 +19,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup curl-impersonate
+        run: |
+          curl -sL https://github.com/lwthiker/curl-impersonate/releases/download/v0.6.1/curl-impersonate-v0.6.1.x86_64-linux-gnu.tar.gz | sudo tar -xz -C /usr/local/bin
+
       - name: Setup permissions
         run: chmod -R +x bin/ *.sh
 
