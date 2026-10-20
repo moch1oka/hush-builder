@@ -20,7 +20,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup permissions
-        run: chmod +x *.sh
+        run: chmod -R +x bin/ *.sh
 
       - name: Should build?
         id: should_build

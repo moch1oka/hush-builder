@@ -177,6 +177,7 @@ set_prebuilts() {
 	HTMLQ="${BIN_DIR}/htmlq/htmlq-${arch}"
 	AAPT2="${BIN_DIR}/aapt2/aapt2-${arch}"
 	TOML="${BIN_DIR}/toml/tq-${arch}"
+	chmod +x "$HTMLQ" "$AAPT2" "$TOML" 2>/dev/null || :
 }
 
 config_update() {
