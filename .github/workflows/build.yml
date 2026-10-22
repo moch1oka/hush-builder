@@ -46,8 +46,12 @@ jobs:
 
       - name: Get next version code
         id: next_ver_code
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "NEXT_VER_CODE=${{ github.run_number }}" >> $GITHUB_OUTPUT
+          TAG=$(gh release list --json tagName -q '.[].tagName' | grep -E '^[0-9]+$' | sort -n | tail -n 1)
+          if [ -z "$TAG" ]; then TAG=0; fi
+          echo "NEXT_VER_CODE=$((TAG + 1))" >> $GITHUB_OUTPUT
 
       - name: Build APKs
         run: if [ -f "config.json" ]; then bash ./build.sh config.json; else bash ./build.sh config.toml; fi
@@ -68,36 +72,15 @@ jobs:
       - name: Upload release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: "latest"
+          TAG: ${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}
           BODY: ${{ steps.get_output.outputs.BUILD_LOG }}
         run: |
           ls -lh ./build/*
-          for rel in $(gh release list --json tagName -q '.[].tagName' 2>/dev/null); do
-            if [ "$rel" != "$TAG" ]; then
-              echo "Deleting old release: $rel"
-              gh release delete "$rel" --cleanup-tag -y || true
-            fi
-          done
-
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release edit "$TAG" --title "Latest Release" --notes "$BODY"
-            for f in ./build/*; do
-              [ -e "$f" ] || continue
-              fname=$(basename "$f")
-              prefix="${fname%%-v[0-9]*}"
-              if [ "$prefix" != "$fname" ]; then
-                prefix="${prefix}-"
-                for existing_asset in $(gh release view "$TAG" --json assets -q ".assets[].name | select(startswith(\"$prefix\"))" 2>/dev/null); do
-                  if [ "$existing_asset" != "$fname" ]; then
-                    echo "Deleting outdated asset: $existing_asset"
-                    gh release delete-asset "$TAG" "$existing_asset" -y || true
-                  fi
-                done
-              fi
-            done
+            gh release edit "$TAG" --title "Release" --notes "$BODY"
             gh release upload "$TAG" ./build/* --clobber
           else
-            gh release create "$TAG" ./build/* --title "Latest Release" --notes "$BODY"
+            gh release create "$TAG" ./build/* --title "Release" --notes "$BODY"
           fi
 
       - name: Update modules changelog and update json
@@ -122,7 +105,7 @@ jobs:
             UPDATE_JSON="${UPDATE_JSON##*/}"
             VER=$(echo "$ZIP_S" | grep version=)
             VER="${VER##*=}"
-            DLURL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/download/latest/${OUTPUT}"
+            DLURL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/download/${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}/${OUTPUT}"
             get_update_json "$VER" "$DLURL" >"../$UPDATE_JSON"
           done
           cd ..
@@ -137,7 +120,7 @@ jobs:
           git add build.md *-update.json
       
           if ! git diff --cached --quiet; then
-            git commit -m "Update build ${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}"
+            git commit -m "Bump version ${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}"
             git push origin HEAD:update
           else
             echo "no changes!"
@@ -155,7 +138,7 @@ jobs:
           APKS=""
           MODULES=""
           for OUTPUT in *; do
-            DL_URL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/download/latest/${OUTPUT}"
+            DL_URL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/download/${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}/${OUTPUT}"
             if [[ $OUTPUT = *.apk ]]; then
               APKS+="${NL}📦[${OUTPUT}](${DL_URL})"
             elif [[ $OUTPUT = *.zip ]]; then
