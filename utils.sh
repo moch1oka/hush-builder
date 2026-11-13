@@ -817,12 +817,13 @@ build_rv() {
 		fi
 		if [ "$pkg_name" = "com.facebook.katana" ]; then
 			if unzip -l "$stock_apk" "assets/secondary-program-dex-jars/store-0.dex.spo" 2>/dev/null | grep -q "store-0.dex.spo"; then
-				pr "Facebook build has secondary-program-dex-jars/store-0.dex.spo (Android 9 build). Downloading Android 11+ build (build code 475614366)..."
+				local fb_vc=${args[version_code]:-476217123}
+				pr "Facebook build has secondary-program-dex-jars/store-0.dex.spo (Android 9 build). Downloading Android 11+ build (build code ${fb_vc})..."
 				local fb_tmp
 				fb_tmp=$(mktemp -d -p "$TEMP_DIR")
 				local fb_xapk="${fb_tmp}/fb.xapk"
 				if curl -sSL -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36" \
-					"https://d.apkpure.net/b/XAPK/com.facebook.katana?versionCode=475614366" -o "$fb_xapk" && [ -s "$fb_xapk" ]; then
+					"https://d.apkpure.net/b/XAPK/com.facebook.katana?versionCode=${fb_vc}" -o "$fb_xapk" && [ -s "$fb_xapk" ]; then
 					merge_splits "$fb_xapk" "$stock_apk"
 				fi
 				rm -rf "$fb_tmp"
