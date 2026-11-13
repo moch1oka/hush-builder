@@ -1,13 +1,11 @@
 ---
 name: Bug report
-about: Bug report
+about: Report an issue with the builder workflow
 title: ''
 labels: ''
 assignees: ''
 
 ---
 
-**DO NOT REPORT REVANCED STUFF IN THIS REPO**  
-if you delete these lines and proceed to report revanced stuff like **patch bugs** or **patch requests**, you will be **blocked** from this repo
-
-Use issues only to report bugs of the rvmm builder or the modules
+Please provide a clear description of the issue with the builder or workflow.
+For patch-specific issues or app crashes, please report directly to the upstream patch repositories ([SysAdminDoc](https://github.com/SysAdminDoc)).

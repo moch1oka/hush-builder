@@ -1,68 +1,57 @@
-# Config
+# Configuration Guide
 
-Adding another revanced app is as easy as this:
+Configure apps to patch in `config.toml`.
+
+## Quick Example
+
 ```toml
-[Some-App]
-apkmirror-dlurl = "https://www.apkmirror.com/apk/inc/app"
+[TikTok-Hush]
+app-name = "TikTok"
+patches-source = "SysAdminDoc/hushfeed"
+cli-source = "MorpheApp/morphe-cli"
+rv-brand = "Hush"
+build-mode = "apk"
+arch = "arm64-v8a"
+pkg-name = "com.zhiliaoapp.musically"
+apkpure-dlurl = "true"
+included-patches = "'AMOLED dark theme'"
 ```
 
 > [!WARNING]
-> When a patch name itself contains a single quote, double it inside the string (e.g. 'Hide ''Get Music Premium''').
+> When a patch name itself contains a single quote, double it inside the string (e.g. `'Hide ''Get Music Premium'''`).
 
-## More about other options:
-
-There exists an example below with all defaults shown and all the keys explicitly set.  
-**All keys are optional** (except download urls) and are assigned to their default values if not set explicitly.  
+## Options Reference
 
 ```toml
-parallel-jobs = 1                    # amount of cores to use for parallel patching, if not set $(nproc) is used
-compression-level = 9                # module zip compression level
-remove-rv-integrations-checks = true # remove checks from the revanced integrations
-dpi = "nodpi anydpi 120-640dpi"      # dpi packages to be searched in order. default: "nodpi anydpi"
+# Global options
+enable-module-update = false         # Disable module updates when building APKs only
+parallel-jobs = 1                   # Amount of concurrent patch jobs (default: 1)
+compression-level = 9               # Module zip compression level
+remove-rv-integrations-checks = false # Remove integrations checks if needed
+dpi = "nodpi anydpi 120-640dpi"     # DPI packages to search in order
+arch = "arm64-v8a"                  # Default architecture: arm64-v8a, arm-v7a, all
+build-mode = "apk"                  # 'apk', 'module', or 'both'
 
-patches-source = "revanced/revanced-patches" # where to fetch patches bundle from. default: "revanced/revanced-patches"
-cli-source = "ReVanced/revanced-cli"             # where to fetch cli from. default: "ReVanced/revanced-cli"
-# options like cli-source can also set per app
-rv-brand = "ReVanced Extended" # rebrand from 'ReVanced' to something different. default: "ReVanced"
-
-patches-version = "v2.160.0" # 'latest', 'dev', or a version number. default: "latest"
-cli-version = "v5.0.0"       # 'latest', 'dev', or a version number. default: "latest"
+patches-source = "MorpheApp/morphe-patches" # Default patches source repository
+cli-source = "MorpheApp/morphe-cli"         # Default CLI source repository
+rv-brand = "Hush"                           # Default brand name
+patches-version = "latest"                  # 'latest', 'dev', or a specific tag
+cli-version = "latest"                      # 'latest', 'dev', or a specific tag
 
 [Some-App]
-app-name = "SomeApp" # if set, release name becomes SomeApp instead of Some-App. default is same as table name, which is 'Some-App' here.
-enabled = true       # whether to build the app. default: true
-build-mode = "apk"   # 'both', 'apk' or 'module'. default: apk
+app-name = "SomeApp"                # Custom display name for the app
+enabled = true                      # Whether to build this app (default: true)
+build-mode = "apk"                  # 'apk', 'module', or 'both'
+arch = "arm64-v8a"                  # Target CPU architecture
+pkg-name = "com.example.app"        # Android package name
+version = "auto"                    # 'auto' selects highest supported version by patches
+version-code = "123456789"          # Pin specific versionCode for APKPure CDN download (e.g. Facebook)
 
-# 'auto' option gets the latest possible version supported by all the included patches
-# 'latest' gets the latest stable without checking patches support. 'beta' gets the latest beta/alpha
-# whitespace seperated list of patches to exclude. default: ""
-version = "auto"     # 'auto', 'experimental', 'latest' or a version number (e.g. '17.40.41'). default: auto
+apkpure-dlurl = "true"              # Enable downloading base APK via APKPure / apkeep
+apkmirror-dlurl = "https://..."     # Fallback APKMirror URL if needed
+direct-dlurl = "https://..."        # Direct APK download link
 
-# optional args to be passed to cli. can be used to set patch options
-# multiline strings in the config is supported
-patcher-args = """\
-  -OdarkThemeBackgroundColor=#FF0F0F0F \
-  -Oanother-option=value \
-  """
-
-excluded-patches = """\
-  'Some Patch' \
-  'Some Other Patch' \
-  """
-
-included-patches = "'Some Patch'"                          # whitespace seperated list of non-default patches to include. default: ""
-include-stock = "merged"                                   # 'merged', 'split' or 'disable'. default: merged
-exclusive-patches = false                                  # exclude all patches by default. default: false
-
-# enables in-app update check for `apk` build-mode. default: false
-# as of now, works only for yt, yt music, twitter and gphotos
-enable-update-checks = true
-
-apkmirror-dlurl = "https://www.apkmirror.com/apk/inc/app"
-# direct download url. the url must have point to an apk file with name format shown in this example
-direct-dlurl = "https://website/com.google.android.youtube-20.40.45-all.apk"
-
-module-prop-name = "some-app-module"                       # module prop name.
-dpi = "360-480dpi"                                         # used to select apk variant from apkmirror. default: nodpi
-arch = "arm64-v8a"                                         # 'arm64-v8a', 'arm-v7a', 'all', 'both'. 'both' downloads both arm64-v8a and arm-v7a. default: all
+included-patches = "'Some Patch'"   # Space-separated list of additional patches to enable
+excluded-patches = "'Other Patch'"  # Space-separated list of patches to disable
+patcher-args = "-Ooption=value"     # Additional arguments passed to the CLI patcher
 ```

@@ -1,56 +1,54 @@
-# ReVanced Magisk Module
-[![Telegram](https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/rvc_magisk)
-[![CI](https://github.com/j-hc/revanced-magisk-module/actions/workflows/ci.yml/badge.svg?event=schedule)](https://github.com/j-hc/revanced-magisk-module/actions/workflows/ci.yml)
+# Hush App Builder
 
-Extensive ReVanced builder  
+Automated CI builder for Hush-patched social applications, powered by [SysAdminDoc](https://github.com/SysAdminDoc) patches and [Morphe](https://github.com/MorpheApp).
 
-Get the [latest CI release](https://github.com/j-hc/revanced-magisk-module/releases).
+[![Build Status](https://github.com/moch1oka/hush-builder/actions/workflows/ci.yml/badge.svg)](https://github.com/moch1oka/hush-builder/actions/workflows/ci.yml)
+[![Latest Release](https://img.shields.io/github/v/release/moch1oka/hush-builder?sort=date&label=Release)](https://github.com/moch1oka/hush-builder/releases)
 
-Use [**zygisk-detach**](https://github.com/j-hc/zygisk-detach) to detach YouTube and YT Music from Play Store if you are using magisk modules. 
+---
 
-<details><summary><big>Features</big></summary>
-<ul>
- <li> Supports all present and future ReVanced apps (including projects implementing the same interface like Morphe)</li>
- <li> Receives in-app updates</li>
- <li> Can build modules and non-root APKs</li>
- <li> Updated daily with the latest versions of apps and patches</li>
- <li> Optimizes APKs and modules for size</li>
- <li> Modules</li>
-    <ul>
-     <li> handle installation of the correct version of the stock app and all that</li>
-     <li> do not trigger root detections</li>
-     <li> receive updates from Magisk/KernelSU app</li>
-     <li> recompile invalidated odex for faster usage</li>
-    </ul>
-</ul>
-</details>
+## Supported Applications
 
-## To include/exclude patches or patch other apps
+| Application | Package Name | Patch Source | Target Architecture |
+|---|---|---|---|
+| **Facebook Hush** | `com.facebook.katana` | [SysAdminDoc/Hushfacebook](https://github.com/SysAdminDoc/Hushfacebook) | `arm64-v8a` |
+| **Messenger Hush** | `com.facebook.orca` | [SysAdminDoc/HushMessenger](https://github.com/SysAdminDoc/HushMessenger) | `arm64-v8a` |
+| **Instagram Hush** | `com.instagram.android` | [SysAdminDoc/HushGram](https://github.com/SysAdminDoc/HushGram) | `arm64-v8a` |
+| **Threads Hush** | `com.instagram.barcelona` | [SysAdminDoc/HushThreads](https://github.com/SysAdminDoc/HushThreads) | `arm64-v8a` |
+| **TikTok Hush** | `com.zhiliaoapp.musically` | [SysAdminDoc/hushfeed](https://github.com/SysAdminDoc/hushfeed) | `arm64-v8a` |
 
- * Star the repo :eyes:
- * Use the repo as a [template](https://github.com/new?template_name=revanced-magisk-module&template_owner=j-hc)
- * Customize [`config.toml`](./config.toml) using [rvmm-config-gen](https://j-hc.github.io/rvmm-config-gen/)
- * Run the build [workflow](../../actions/workflows/build.yml)
- * Grab your modules and APKs from [releases](../../releases)
+---
 
-also see here [`CONFIG.md`](./CONFIG.md)
+## Downloads and Installation
 
-## If you are having trouble with the classic mount method of the modules
-such as,
-- **"Reflash needed"** error after reboots
-- **"Suspicious mount detected"** warnings from root detector apps
+### 1. Direct Download
+Download the latest standalone APKs directly from [GitHub Releases](https://github.com/moch1oka/hush-builder/releases).
 
-You can consider using [rvmm-zygisk-mount](https://github.com/j-hc/rvmm-zygisk-mount)
+### 2. Obtainium (Recommended for Auto-Updates)
+You can track and install updates for all 5 apps automatically using [Obtainium](https://github.com/ImranR98/Obtainium):
 
-## Building Locally
-### On Termux
-```console
-bash <(curl -sSf https://raw.githubusercontent.com/j-hc/revanced-magisk-module/main/build-termux.sh)
-```
+- **Import via Link:** Copy the deep link in [`hush-linkobtainium.txt`](./hush-linkobtainium.txt) and open it in Obtainium.
+- **Import via File:** In Obtainium, go to `Import / Export` -> `Import from Storage` and select [`hush-obtainium-config.json`](./hush-obtainium-config.json).
 
-### On Linux
-```console
-$ git clone https://github.com/j-hc/revanced-magisk-module --depth 1
-$ cd revanced-magisk-module
-$ ./build.sh
-```
+---
+
+## Features
+
+- **Automated Upstream Checking:** Scheduled GitHub Actions workflow runs daily to detect new patch releases from SysAdminDoc.
+- **Standalone Non-Root APKs:** Pre-patched APKs signed with custom keystore, ready for installation on any non-rooted or rooted device.
+- **Optimized Size:** Uses native `--striplibs` via Morphe CLI to strip unneeded native architectures while maintaining proper library alignment.
+- **Direct CDN Integration:** Automated stock APK downloading via APKPure CDN with apkeep fallback.
+
+---
+
+## Configuration
+
+Settings can be customized in [`config.toml`](./config.toml). See [`CONFIG.md`](./CONFIG.md) for detailed configuration options.
+
+---
+
+## Credits
+
+- [SysAdminDoc](https://github.com/SysAdminDoc) for Hush patches (Hushfacebook, HushMessenger, HushGram, HushThreads, hushfeed).
+- [MorpheApp](https://github.com/MorpheApp) for Morphe CLI and patcher tooling.
+- [j-hc](https://github.com/j-hc/revanced-magisk-module) for the underlying builder architecture.
