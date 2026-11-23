@@ -591,11 +591,14 @@ dl_apkpure() {
 	if [ -n "$version_code" ]; then
 		pr "Downloading specific versionCode ${version_code} from APKPure CDN..."
 		local dl_xapk="${dl_dir}/${pkg_name}_${version_code}.xapk"
-		if curl -sSL -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36" \
+		if curl -fsSL -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36" \
 			"https://d.apkpure.net/b/XAPK/${pkg_name}?versionCode=${version_code}" -o "$dl_xapk" && [ -s "$dl_xapk" ]; then
-			merge_splits "$dl_xapk" "$output"
-			rm -rf "$dl_dir"
-			return 0
+			if head -c 2 "$dl_xapk" | grep -q "PK"; then
+				merge_splits "$dl_xapk" "$output"
+				rm -rf "$dl_dir"
+				return 0
+			fi
+			rm -f "$dl_xapk"
 		fi
 		pr "Direct versionCode download failed, falling back to apkeep..."
 	fi
@@ -822,9 +825,11 @@ build_rv() {
 				local fb_tmp
 				fb_tmp=$(mktemp -d -p "$TEMP_DIR")
 				local fb_xapk="${fb_tmp}/fb.xapk"
-				if curl -sSL -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36" \
+				if curl -fsSL -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36" \
 					"https://d.apkpure.net/b/XAPK/com.facebook.katana?versionCode=${fb_vc}" -o "$fb_xapk" && [ -s "$fb_xapk" ]; then
-					merge_splits "$fb_xapk" "$stock_apk"
+					if head -c 2 "$fb_xapk" | grep -q "PK"; then
+						merge_splits "$fb_xapk" "$stock_apk"
+					fi
 				fi
 				rm -rf "$fb_tmp"
 			fi
