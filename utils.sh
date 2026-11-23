@@ -817,7 +817,7 @@ build_rv() {
 		fi
 		if [ "$pkg_name" = "com.facebook.katana" ]; then
 			if unzip -l "$stock_apk" "assets/secondary-program-dex-jars/store-0.dex.spo" 2>/dev/null | grep -q "store-0.dex.spo"; then
-				local fb_vc=${args[version_code]:-476217123}
+				local fb_vc=${args[version_code]:-707615136}
 				pr "Facebook build has secondary-program-dex-jars/store-0.dex.spo (Android 9 build). Downloading Android 11+ build (build code ${fb_vc})..."
 				local fb_tmp
 				fb_tmp=$(mktemp -d -p "$TEMP_DIR")
