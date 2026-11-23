@@ -5,16 +5,16 @@ Configure apps to patch in `config.toml`.
 ## Quick Example
 
 ```toml
-[TikTok-Hush]
-app-name = "TikTok"
-patches-source = "SysAdminDoc/hushfeed"
+[Instagram-Hush]
+app-name = "Instagram"
+patches-source = "SysAdminDoc/HushGram"
 cli-source = "MorpheApp/morphe-cli"
 rv-brand = "Hush"
 build-mode = "apk"
 arch = "arm64-v8a"
-pkg-name = "com.zhiliaoapp.musically"
+pkg-name = "com.instagram.android"
 apkpure-dlurl = "true"
-included-patches = "'AMOLED dark theme'"
+apkmirror-dlurl = "https://www.apkmirror.com/apk/instagram/instagram-instagram"
 ```
 
 > [!WARNING]

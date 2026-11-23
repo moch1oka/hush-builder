@@ -15,7 +15,6 @@ Automated CI builder for Hush-patched social applications, powered by [SysAdminD
 | **Messenger Hush** | `com.facebook.orca` | [SysAdminDoc/HushMessenger](https://github.com/SysAdminDoc/HushMessenger) | `arm64-v8a` |
 | **Instagram Hush** | `com.instagram.android` | [SysAdminDoc/HushGram](https://github.com/SysAdminDoc/HushGram) | `arm64-v8a` |
 | **Threads Hush** | `com.instagram.barcelona` | [SysAdminDoc/HushThreads](https://github.com/SysAdminDoc/HushThreads) | `arm64-v8a` |
-| **TikTok Hush** | `com.zhiliaoapp.musically` | [SysAdminDoc/hushfeed](https://github.com/SysAdminDoc/hushfeed) | `arm64-v8a` |
 
 ---
 
@@ -25,7 +24,7 @@ Automated CI builder for Hush-patched social applications, powered by [SysAdminD
 Download the latest standalone APKs directly from [GitHub Releases](https://github.com/moch1oka/hush-builder/releases).
 
 ### 2. Obtainium (Recommended for Auto-Updates)
-You can track and install updates for all 5 apps automatically using [Obtainium](https://github.com/ImranR98/Obtainium):
+You can track and install updates for all 4 apps automatically using [Obtainium](https://github.com/ImranR98/Obtainium):
 
 - **Import via Link:** Copy the deep link in [`hush-linkobtainium.txt`](./hush-linkobtainium.txt) and open it in Obtainium.
 - **Import via File:** In Obtainium, go to `Import / Export` -> `Import from Storage` and select [`hush-obtainium-config.json`](./hush-obtainium-config.json).
@@ -49,6 +48,6 @@ Settings can be customized in [`config.toml`](./config.toml). See [`CONFIG.md`](
 
 ## Credits
 
-- [SysAdminDoc](https://github.com/SysAdminDoc) for Hush patches (Hushfacebook, HushMessenger, HushGram, HushThreads, hushfeed).
+- [SysAdminDoc](https://github.com/SysAdminDoc) for Hush patches (Hushfacebook, HushMessenger, HushGram, HushThreads).
 - [MorpheApp](https://github.com/MorpheApp) for Morphe CLI and patcher tooling.
 - [j-hc](https://github.com/j-hc/revanced-magisk-module) for the underlying builder architecture.
